@@ -5,6 +5,8 @@
 (char->integer #\3)
 
 
+
+
 (define (num2 n e)
   (if (> n 1)
 (num2 (- n 1) (+ e 1))
