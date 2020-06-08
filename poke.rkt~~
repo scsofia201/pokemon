@@ -1,0 +1,13 @@
+(require (lib "graphics.ss" "graphics"))
+(open-graphics)
+ 
+ 
+(define ventana (open-viewport "pokemon" 600 500))
+ 
+(((draw-pixmap-posn "mapa3a.png" 'unknown/mask ) ventana) (make-posn 0 0))
+
+
+
+
+
+
