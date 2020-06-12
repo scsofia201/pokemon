@@ -4,6 +4,8 @@
 (require racket/set)
 (require racket/dict)
 (require racket/hash)
+(require racket/vector)
+
 
 (define SPRITE_HEIGHT 52)
 (define SPRITE_WIDTH 34)
@@ -11,47 +13,16 @@
 
 (define PROBABILIDAD_ATAQUE 10)
 
-(define mapa-actual 1)
-
-;'down  'left  'right
-
-(define (cambiomapa? x y d ventana)
-  (cond
-    ((= mapa-actual 1) (if (< y -5) (begin (set! mapa-actual 2) (moverse x 480 'up d ventana)) #t))
-    ((= mapa-actual 2) (cond ((= y 490) (begin (set! mapa-actual 1) (moverse x 10 'down d ventana)))
-                      ((< y -5) (begin (set! mapa-actual 2.1) (moverse x 480 'up d ventana)))(else #t)))
-    ((= mapa-actual 2.1) (cond ((= y 490) (begin (set! mapa-actual 2) (moverse x 10 'down d ventana)))
-                        ((< y -5) (if (< x 285) (begin (set! mapa-actual 3) (moverse 558 480 'up d ventana))
-                                      (begin (set! mapa-actual 3.2) (moverse 10 480 'up d ventana)))) (else #t)))
-
-    ((= mapa-actual 3) (cond ((> x 570) (begin (set! mapa-actual 3.2) (moverse 10 y 'left d ventana)))
-                      ((= y 490) (begin (set! mapa-actual 2.1) (moverse 260 10 'down d ventana)))
-                      ((< y -5) (begin (set! mapa-actual 3.1) (moverse x 480 'up d ventana)))(else #t)))
-    ((= mapa-actual 3.1) (cond ((> x 570) (begin (set! mapa-actual 3.3) (moverse 5 y 'left d ventana)))
-                        ((< x 5)  (begin (set! mapa-actual 4.3) (moverse 570 10 'right d ventana)))
-                        ((= y 490)  (begin (set! mapa-actual 3) (moverse x 10 'down d ventana))) (else #t)))
-    ((= mapa-actual 3.2) (cond ((< x 5) (begin (set! mapa-actual 3) (moverse 570 y 'right d ventana)))
-                        ((= y 490) (begin (set! mapa-actual 2.1) (moverse 310 10 'down d ventana)))
-                        ((< y -5) (begin (set! mapa-actual 3.3) (moverse x 480 'up d ventana))) (else #t)))
-    ((= mapa-actual 3.3) (cond ((< x 5) (begin (set! mapa-actual 3.1) (moverse 570 y 'left d ventana)))
-                        ((= y 490) (begin (set! mapa-actual 3.2) (moverse x 10 'down d ventana)))(else #t)))
-
-
-    
-    ((= mapa-actual 4) (cond ((> y 480) (begin (set! mapa-actual 4.2) (moverse x 5 'down d ventana)))
-                      ((> x 570) (begin (set! mapa-actual 4.1) (moverse 5 y 'left d ventana))) (else #t)))
-    ((= mapa-actual 4.1) (cond ((> y 480) (begin (set! mapa-actual 4.3) (moverse x 5 'down d ventana)))
-                        ((< x 5) (begin (set! mapa-actual 4) (moverse 570 y 'left d ventana))) (else #t)))
-    ((= mapa-actual 4.2) (cond ((< y 5) (begin (set! mapa-actual 4) (moverse x 480 'down d ventana)))
-                        ((> x 570) (begin (set! mapa-actual 4.3) (moverse 10 y 'down d ventana))) (else #t)))
-    ((= mapa-actual 4.3)(cond ((> x 570)(begin (set! mapa-actual 3.1) (moverse 10 450 'down d ventana)))
-                       ((< x 5) (begin (set! mapa-actual 4.2) (moverse 570 y 'down d ventana)))
-                       ((< y -5) (begin (set! mapa-actual 4.1) (moverse x 480 'down d ventana))) (else #t)))) )
-
-
+(define mapa-actual 4)
 
 (define-struct obs (x y width height jumpable))
 (define-struct grass (x y width height))
+(define-struct entrada (x y width height mapa x2 y2))
+
+(define (escenario ventana)
+(begin
+  ((draw-pixmap ventana) (dict-ref mapas mapa-actual) (make-posn 0 0) "blue")
+))
 
 (define mapas (hash 1 "mapa 1 a.jpg"
                     2 "mapa 2 a.jpg"
@@ -63,14 +34,95 @@
                     4 "mapa 4 a.jpg"
                     4.1 "mapa 4 b.jpg"
                     4.2 "mapa 4 c.jpg"
+                    4.3 "mapa 4 d.jpg"
                     5 "casa1.1.png"
                     5.1 "casa1.2.png"
-                    5.2 "casa2.png"
-                    5.3 "casa3.png"
-                    5.4 "enfermeria.png"
-                    5.5 "tienda.png"
-                    5.6 "laboratorio.png"
+                    6 "casa2.png"
+                    6.1 "casa2.png"
+                    6.2 "casa2.png"
+                    6.3 "casa2.png"
+                    6.4 "casa2.png"
+                    6.5 "casa2.png"
+                    6.6 "casa2.png"
+                    6.7 "casa2.png"
+                    6.8 "casa2.png"
+                    7 "enfermeria.png"
+                    7.1 "enfermeria.png"
+                    8 "tienda.png"
+                    8.1 "tienda.png"
+                    9 "laboratorio.png"
+                    10 "gimnasio.png"
+                    10.1 "gimnasio.png"
+                   
                    ))
+
+(define (entradas-mapa)
+  (cond ((= mapa-actual 1) (set (make-entrada 0 0 600 10 2 -1 450)
+                                (make-entrada 142 180 40 20 5 -1 450);casa1
+                                (make-entrada 367 180 40 20 6 190 450);casa2
+                                (make-entrada 392 330 40 20 9 280 450)));laboratorio
+        ((= mapa-actual 2) (set (make-entrada 0 0 600 10 2.1 -1 450)
+                                (make-entrada 0 495 600 5 1 -1 5)))
+        ((= mapa-actual 2.1) (set (make-entrada 0 0 300 10 3 558 450)
+                                  (make-entrada 300 0 315 10 3.2 10 450)
+                                  (make-entrada 0 495 600 5 2 -1 5)))
+        ((= mapa-actual 3) (set (make-entrada 0 0 600 10 3.1 -1 440)
+                                (make-entrada 0 495 600 5 2.1 270 5)
+                                (make-entrada 595 0 5 500 3.2 10 -1)))
+        ((= mapa-actual 3.1) (set (make-entrada 190 495 600 5 3 -1 5)
+                                  (make-entrada 595 0 5 500 3.3 10 -1)
+                                  (make-entrada 0 0 5 500 4.3 558 30)))
+        ((= mapa-actual 3.2) (set (make-entrada  290 0 50 10 8 200 440)
+                                  (make-entrada  0 0 600 10 3.3 -1 450)
+                                  (make-entrada  0 0 5 500 3 558 -1)
+                                  (make-entrada 0 495 600 5 2.1 300 5)
+                                  (make-entrada 40 155 50 25 7 270 450))) ;enfermeria
+        ((= mapa-actual 3.3) (set (make-entrada 0 495 600 5 3.2 -1 5)
+                                  (make-entrada 0 0 5 500 3.1 558 -1)
+                                  (make-entrada  288 252 50 25 10 110 440);gimnasio
+                                  (make-entrada  10 280 50 25 6.1 190 450);casa2
+                                  (make-entrada  10 455 50 15 6.2 190 450);casa2
+                                  (make-entrada  290 465 50 40 8 200 440)));tienda
+        ((= mapa-actual 4) (set (make-entrada 0 495 600 5 4.2 -1 -3)
+                                (make-entrada 595 0 5 500 4.1 10 -1)
+                                (make-entrada 260 380 50 20 8.1 200 450))) ;tienda
+        ((= mapa-actual 4.1) (set (make-entrada 0 495 600 5 4.3 -1 5)
+                                  (make-entrada 0 0 5 500 4 550 -1)
+                                  (make-entrada 0 125 50 25 6.3 190 450);casa2
+                                  (make-entrada 90 405 50 25 6.4 190 450)));casa2
+        ((= mapa-actual 4.2) (set (make-entrada 595 0 5 600 4.3 5 -1)
+                                  (make-entrada 0 0 600 10 4 -1 450)
+                                  (make-entrada  210 300 55 25 10.1 110 440);gimnasio
+                                  (make-entrada 340 275 50 25 6.5 190 450);casa2
+                                  (make-entrada 465 275 50 25 6.6 190 450)));casa2
+        ((= mapa-actual 4.3) (set (make-entrada 0 0 600 10 4.1 -1 440)
+                                  (make-entrada 595 0 5 500 3.1 10 440)
+                                  (make-entrada  0 0 5 500 4.2 558 -1)
+                                  (make-entrada  340 275 50 25 6.7 190 450);casa2
+                                  (make-entrada  215 275 50 25 6.8 190 450);casa2
+                                  (make-entrada  10 275 50 25 7.1 270 450)));enfermeria
+        ((= mapa-actual 5) (set (make-entrada 130 495 80 30 1 142 170)
+                                (make-entrada 490 105 20 80 5.1 500 110)))
+        ((= mapa-actual 5.1) (set (make-entrada 480 100 20 90 5 460 100)))
+        ((= mapa-actual 6) (set (make-entrada 170 495 85 30 1 367 160)))
+        ((= mapa-actual 6.1) (set (make-entrada 170 495 85 30 3.3 30 290)))
+        ((= mapa-actual 6.2) (set (make-entrada 170 495 85 30 3.3 30 430)))
+        ((= mapa-actual 6.3) (set (make-entrada 170 495 85 30 4.1 25 130)))
+        ((= mapa-actual 6.4) (set (make-entrada 170 495 85 30 4.1 105 410)))
+        ((= mapa-actual 6.5) (set (make-entrada 170 495 85 30 4.2 360 280)))
+        ((= mapa-actual 6.6) (set (make-entrada 170 495 85 30 4.2 480 280)))
+        ((= mapa-actual 6.7) (set (make-entrada 170 495 85 30 4.3 365 280)))
+        ((= mapa-actual 6.8) (set (make-entrada 170 495 85 30 4.3 220 280)))
+        ((= mapa-actual 7) (set (make-entrada 235 495 86 5 3.2 50 155)))
+        ((= mapa-actual 7.1) (set (make-entrada 235 495 86 5 4.3 35 275)))
+        ((= mapa-actual 8) (set (make-entrada 165 495 100 5 3.2 300 -5)))
+        ((= mapa-actual 8.1) (set (make-entrada 165 495 100 5 4 275 390)))
+        ((= mapa-actual 9) (set (make-entrada 260 495 80 30 1 411 330)))
+        ((= mapa-actual 10) (set (make-entrada 0 495 600 5 3.3 310 240)))
+        ((= mapa-actual 10.1) (set (make-entrada  0 495 600 5 4.2 227 310)))
+
+    (else (set))  ) )
+
 
 (define (obstaculos-mapa)
   (cond ((= mapa-actual 1) (set (make-obs  0 0 298 42 #f)
@@ -98,7 +150,7 @@
                     (make-obs  225 289 330 13 #t)
                     (make-obs  50 289 100 13 #t)))
 
-  ((= mapa-actual 2.1) (set (make-obs  0 0 250 42 #f)
+  ((= mapa-actual 2.1) (set (make-obs  0 0 240 42 #f)
                     (make-obs  352 0 250 42 #f)
                     (make-obs  205 85 42 205 #f)
                     (make-obs  55 360 42 55 #f)
@@ -131,29 +183,30 @@
                     (make-obs  575 405 25 80 #f)))
 
   ((= mapa-actual 3.2) (set (make-obs  50 390 410 110 #f)
-                    (make-obs  0 75 125 90 #f)
+                    (make-obs  0 75 125 80 #f)
                     (make-obs  455 0 150 500 #f)
                     ;saltar de arriba a bajo:
                     (make-obs  0 265 450 13 #t)))
 
   ((= mapa-actual 3.3) (set (make-obs  250 410 100 60 #f)
-                    (make-obs  0 390 125 70 #f)
-                    (make-obs  0 215 125 70 #f)
+                    (make-obs  0 400 125 50 #f)
+                    (make-obs  0 225 125 50 #f)
                     (make-obs  75 300 50 30 #f)
                     (make-obs  225 155 148 100 #f)
                     (make-obs  125 387 330 13 #f)
                     (make-obs  455 0 145 500 #f)
                     (make-obs  0 0 455 105 #f)
+                    (make-obs  0 455 5 45 #f)
                     ;saltar de arriba a bajo:
-                    (make-obs  135 320 315 10 #t)))
+                    (make-obs  135 320 315 10 #t)
+                    ))
 
 
   ((= mapa-actual 4) (set (make-obs  125 175 350 105 #f)
                     (make-obs  225 320 100 60 #f)
                     (make-obs  325 340 195 15 #f)
-                    (make-obs  525 180 50 25 #f)
-                    (make-obs  550 280 25 75 #f)
-                    (make-obs  200 445 225 70 #f)
+                   (make-obs  525 180 50 25 #f)
+                     (make-obs  200 445 225 70 #f)
                     (make-obs  0 435 190 20 #f)
                     (make-obs  170 435 20 100 #f)
                     (make-obs  0 0 600 125 #f)
@@ -162,7 +215,7 @@
  ((= mapa-actual 4.1) (set (make-obs  175 175 325 105  #f)
                     (make-obs  225 326 225 105 #f)
                     (make-obs  50 328 150 80 #f)
-                    (make-obs  38 382 12 120 #f)
+                    (make-obs  45 382 12 120 #f)
                     (make-obs  150 470 50 5 #f)
                     (make-obs  50 192 75 5 #f)
                     (make-obs  0 266 150 10 #f)
@@ -176,7 +229,7 @@
                     (make-obs  120 290 30 30 #f)
                     (make-obs  0 445 300 55 #f)
                     (make-obs  305 385 165 120 #f)
-                    (make-obs  0 35 50 410 #f)
+                    (make-obs  0 60 50 410 #f)
                     ;saltar de arriba a bajo:
                     (make-obs  100 388 125 13 #t)
                     (make-obs  550 388 50 13 #t)
@@ -203,7 +256,7 @@
                     (make-obs  245 100 55 40 #f)
                     (make-obs  505 180 100 10 #f)
                     (make-obs  250 220 100 100 #f)
-                    (make-obs  350 200 50 75 #f)
+                    (make-obs  360 220 30 60 #f);mom
                     (make-obs  0 350 45 85 #f)
                     (make-obs  555 350 45 85 #f)))
 ((= mapa-actual 5.1) (set (make-obs  0 0 600 100 #f)
@@ -211,44 +264,45 @@
                     (make-obs  270 215 60 145 #f)
                     (make-obs  375 100 25 100 #f)
                     (make-obs  375 185 115 30 #f)))
-
-((= mapa-actual 5.2) (set (make-obs  0 0 600 140 #f)
+((vector-member mapa-actual (vector 6 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8))
+ (set (make-obs  0 0 600 140 #f);casa2
                     (make-obs  20 140 280 40 #f)
                     (make-obs  240 270 110 110 #f)
                     (make-obs  0 270 15 250 #f)
                     (make-obs  565 215 35 300 #f)
                     (make-obs  425 140 45 120 #f)
                     (make-obs  485 140 50 80 #f)
-                    (make-obs  350 260 40 70 #f)
-                    (make-obs  245 220 40 50 #f)))
+                    (make-obs  350 260 30 40 #f);niñ02
+                    (make-obs  250 220 30 40 #f)));niñ01
 
-((= mapa-actual 5.3) (set (make-obs  0 0 600 110 #f)
-                    (make-obs  0 110 250 55 #f)
-                    (make-obs  390 110 55 60 #f)
-                    (make-obs  510 110 90 60 #f)
-                    (make-obs  110 230 170 60 #f)
-                    (make-obs  172 342 100 95 #f)
-                    (make-obs  115 340 45 50 #f)
-                    (make-obs  285 210 45 70 #f)))
-
-((= mapa-actual 5.4) (set (make-obs  0 0 535 140 #f)
+((vector-member mapa-actual (vector 7 7.1)) (set (make-obs  0 0 535 140 #f)
                     (make-obs  85 140 400 65 #f)
-                    (make-obs  480 340 100 100 #f)))
+                    (make-obs  480 340 100 100 #f)));enfermeria
 
-((= mapa-actual 5.5) (set (make-obs  0 0 600 110 #f)
+((vector-member mapa-actual (vector 8 8.1)) (set (make-obs  0 0 600 110 #f)
                     (make-obs  0 0 140 320 #f)
                     (make-obs  325 255 110 200 #f)
-                    (make-obs  545 0 55 450 #f)))
-
-((= mapa-actual 5.6) (set (make-obs 0 0 600 80 #f)
+                    (make-obs  545 0 55 450 #f)));tienda
+((= mapa-actual 9) (set (make-obs 0 0 600 80 #f)
                     (make-obs  0 130 140 106 #f)
                     (make-obs  0 290 235 80 #f)
                     (make-obs  365 290 235 80 #f)
                     (make-obs  365 160 145 50 #f)
-                    (make-obs  263 130 60 85 #f)
+                    (make-obs  273 160 40 45 #f)
                     (make-obs  0 440 40 60 #f)
-                    (make-obs  560 440 40 60 #f)))))
+                    (make-obs  560 440 40 60 #f)))
 
+((vector-member mapa-actual (vector 10 10.1)) (set (make-obs 0 0 600 80 #f)
+                    (make-obs  0 0 600 175 #f)
+                    (make-obs  0 175 105 500 #f)
+                    (make-obs  490 175 105 500 #f)
+                    (make-obs  105 175 128 50 #f)
+                    (make-obs  233 325 128 50 #f)
+                    (make-obs  105 275 128 100 #f)
+                    (make-obs  362 175 130 50 #f)
+                    (make-obs  362 425 128 100 #f)
+                    (make-obs  148 425 170 100 #f)
+                    (make-obs  278 162 40 55 #f)))))
 
 
 (define (hierbas-mapa)
@@ -267,16 +321,7 @@
 (define ventana (open-viewport "pokemon" 600 500))
 ;limites:
 
-(define (escenario ventana)
-(begin
-  ((draw-pixmap ventana) (dict-ref mapas mapa-actual) (make-posn 0 0) "blue")
-  (for/set ([i (obstaculos-mapa)])
-    (if (obs-jumpable i) ((draw-rectangle ventana) (make-posn (obs-x i) (obs-y i)) (obs-width i) (obs-height i) "brown")
-        ((draw-rectangle ventana) (make-posn (obs-x i) (obs-y i)) (obs-width i) (obs-height i) "blue")))
-  (for/set ([i (hierbas-mapa)])
-    ((draw-rectangle ventana) (make-posn (grass-x i) (grass-y i)) (grass-width i) (grass-height i) "green") )
 
-))
 
 (define (sprite x y genero a ventana)
   (((draw-pixmap-posn (cond
@@ -290,8 +335,7 @@
                                         ((= a 1) "hombre iz.png")
                                         ((= a 2) "hombre de.png")
                                         ((= a 3) "hombre ar.png")
-                                        ((= a 4) "hombre ab.png")
-                                                             )))   'unknown/mask ) ventana) (make-posn x y)))
+                                        ((= a 4) "hombre ab.png"))))  'unknown/mask ) ventana) (make-posn x y)))
 
 (define (muñeco x y flecha genero ventana)
   (cond
@@ -303,33 +347,22 @@
 
 ;movimiento
 (define (movimiento x y tecla genero ventana)
-  (if (cambiomapa? x y genero ventana)  
    (cond
     ((equal? tecla 'up)   (movimiento-arriba x y genero ventana))
     ((equal? tecla 'down) (movimiento-abajo x y genero ventana))
     ((equal? tecla 'left) (movimiento-izquierda x y genero ventana))
     ((equal? tecla 'right) (movimiento-derecha x y genero ventana))
-    (else (movimiento x y (key-value (get-key-press ventana))genero ventana)))));si alguna tecla hace alguna accion usar este ringlon
+    (else (movimiento x y (key-value (get-key-press ventana))genero ventana))));si alguna tecla hace alguna accion usar este ringlon
 
 (define (movimiento-arriba x y genero ventana)
   (if (puedo-mover? x (- y 10) 'arriba) (moverse x (- y 10) 'arriba genero ventana) (moverse x y 'arriba genero ventana)))
-
 (define (movimiento-abajo x y genero ventana)
   (if (puedo-mover? x (+ y 10) 'abajo) (moverse x (+ y 10) 'abajo genero ventana) (moverse x y 'abajo genero ventana)))
-
 (define (movimiento-izquierda x y genero ventana)
   (if (puedo-mover? (- x 10) y 'izquierda) (moverse (- x 10) y 'izquierda genero ventana) (moverse x y 'izquierda genero ventana)))
-
 (define (movimiento-derecha x y genero ventana)
   (if (puedo-mover? (+ x 10) y 'derecha) (moverse (+ x 10) y 'derecha genero ventana) (moverse x y 'derecha genero ventana)))
 
-(define (moverse x y tecla genero ventana)
-  (begin
-    (muñeco x y tecla genero ventana)
-    ((draw-solid-rectangle ventana) (make-posn 500 465) 60 20 "white")
-    ((draw-string ventana) (make-posn 500 475) (string-append "x:" (number->string x) " y:" (number->string y)) "black")
-    (revisar-ataque x y ventana)
-    (movimiento x y (key-value (get-key-press ventana))genero ventana)))
 
 (define (puedo-mover? x y tecla)
   (and (and (and (>= x -20) (< (+ x SPRITE_WIDTH) 620)) (and (>= (+ y (- SPRITE_HEIGHT SPRITE_FEETS)) 0) (< y 500))) (not (hay-obstaculo? x y tecla)))
@@ -343,8 +376,17 @@
       i))
     (> (set-count coincidencias) 0) ))
 
+(define (moverse x y tecla genero ventana)
+  (begin
+    (muñeco x y tecla genero ventana)
+    ((draw-solid-rectangle ventana) (make-posn 500 465) 60 20 "white");borrar
+    ((draw-string ventana) (make-posn 500 475) (string-append "x:" (number->string x) " y:" (number->string y)) "black");borrar
+    (revisar-ataque x y ventana)
+    (define pos (revisar-cambiomapa x y ventana))
+    (movimiento (posn-x pos) (posn-y pos) (key-value (get-key-press ventana))genero ventana)))
+
 (define (revisar-ataque x y ventana)
-  (if (and (sobre-hierba? x y) (recibir-ataque?)) ((draw-solid-rectangle ventana) (make-posn x y) SPRITE_WIDTH 20 "red")) )
+  (if (and (sobre-hierba? x y) (recibir-ataque?)) ((draw-solid-rectangle ventana) (make-posn x y) SPRITE_WIDTH 20 "red") ) );b
 
 (define (sobre-hierba? x y)
   (begin
@@ -357,20 +399,25 @@
 (define (recibir-ataque?)
   (> (random 100) (- 100 PROBABILIDAD_ATAQUE)) )
 
+(define (revisar-cambiomapa x y ventana)
+  (begin
+    (define x2 x)
+    (define y2 y)
+(define coincidencias (for/set ([i (entradas-mapa)]
+                                  #:when (and (and (> (+ x SPRITE_WIDTH) (entrada-x i)) (< x (+ (entrada-x i) (entrada-width i))))
+                                              (and (> (+ y SPRITE_HEIGHT) (entrada-y i)) (< (+ y (- SPRITE_HEIGHT SPRITE_FEETS)) (+ (entrada-y i) (entrada-height i))))))
+                          i))
 
-(define-struct pokemon (tipo nivel))
-
-(define uno (make-pokemon "charmander" 15))
-(pokemon-tipo uno)
-
-
-(define mis-pokemones (hash))
-(set! mis-pokemones (dict-set mis-pokemones 1 (make-pokemon "bulbasur" 4)))
-(set! mis-pokemones (dict-set mis-pokemones 2 (make-pokemon "charmander" 6)))
-(dict-ref mis-pokemones 2)
+(if (> (set-count coincidencias) 0)
+        (begin
+          (set! mapa-actual (entrada-mapa (set-first coincidencias)))        
+          (if (not (= (entrada-x2 (set-first coincidencias)) -1))
+              (set! x2 (entrada-x2 (set-first coincidencias))))
+          (if (not (= (entrada-y2 (set-first coincidencias)) -1))
+              (set! y2 (entrada-y2 (set-first coincidencias))))
+          ))(make-posn x2 y2)))
 
 
-
-
+;(dict-ref mis-pokemones 2)
 
 (movimiento 90 190 'up 1 ventana)
