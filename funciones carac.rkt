@@ -13,11 +13,12 @@
 
 (define PROBABILIDAD_ATAQUE 10)
 
-(define mapa-actual 4)
+(define mapa-actual 7)
 
 (define-struct obs (x y width height jumpable))
 (define-struct grass (x y width height))
 (define-struct entrada (x y width height mapa x2 y2))
+(define-struct cuadro (x y ancho alto dialogo))
 
 (define (escenario ventana)
 (begin
@@ -347,12 +348,13 @@
 
 ;movimiento
 (define (movimiento x y tecla genero ventana)
+(begin (dialogo? x y tecla ventana genero)
    (cond
     ((equal? tecla 'up)   (movimiento-arriba x y genero ventana))
     ((equal? tecla 'down) (movimiento-abajo x y genero ventana))
     ((equal? tecla 'left) (movimiento-izquierda x y genero ventana))
     ((equal? tecla 'right) (movimiento-derecha x y genero ventana))
-    (else (movimiento x y (key-value (get-key-press ventana))genero ventana))));si alguna tecla hace alguna accion usar este ringlon
+    (else (movimiento x y (key-value (get-key-press ventana))genero ventana)))));si alguna tecla hace alguna accion usar este ringlon
 
 (define (movimiento-arriba x y genero ventana)
   (if (puedo-mover? x (- y 10) 'arriba) (moverse x (- y 10) 'arriba genero ventana) (moverse x y 'arriba genero ventana)))
@@ -418,6 +420,71 @@
           ))(make-posn x2 y2)))
 
 
+
+(define (dialogos x)
+  (begin
+    (((draw-pixmap-posn  "nueve2.png"  'unknown/mask ) ventana) (make-posn 0 373))
+    (cond
+      ((= x -1) ((draw-string ventana) (make-posn 30 420) "Nuestro vecino, el PROF. OAK, quería verte antes de que emprendas tu viaje." "black"))
+      ((= x -2) (begin
+                  ((draw-string ventana) (make-posn 50 410) "hola, espero te encuentres muy bien " "black")
+                  ((draw-string ventana) (make-posn 270 410) "ruben"  "black")
+                  (sleep 1)((draw-string ventana) (make-posn 50 430) "para empezar tu viaje debes tener un POKEMON ¿cual de estos quieres?" "black")))
+      ((= x -3)((draw-string ventana) (make-posn 50 410) "hola, si quieres curar a tus POKEMON este es el lugar indicado" "black"))
+      ((= x -4)((draw-string ventana) (make-posn 50 410) "bienvenido a la tienda POKEMON, aqui puedes comprar POKEBALLS" "black"))
+      ((= x -5)((draw-string ventana) (make-posn 50 410) "bienvenido a mi gimnasio,espero estes listo para una batalla" "black"))
+      ((= x 1)(begin
+                ((draw-string ventana) (make-posn 30 410) "¡Hola!, ya que estas por aquí, te recomiendo que si tienes POKEMON heridos ve a " "black")
+                (sleep 1)((draw-string ventana) (make-posn 30 430) "la enfermería a curarlos." "black")))
+      ((= x 2)((draw-string ventana) (make-posn 30 410) "¡Oye tú! si no tienes POKEBALLS, puedes comprarlas en la tienda""black"))
+      ((= x 3)(begin
+                ((draw-string ventana) (make-posn 30 410) "¡Hey!, si quieres POKEMON, captúralos en la hierba,""black")
+                (sleep 1)((draw-string ventana) (make-posn 30 430) "pero cuidado, los tuyos pueden salir heridos.""black")))
+      ((= x 4)(begin
+                ((draw-string ventana) (make-posn 30 410)"Si quieres dinero, enfréntate a líderes de gimnasio POKEMON o a POKEMON y gánales,""black")
+                (sleep 1)((draw-string ventana) (make-posn 30 430)"pero si pierdes, también pierdes dinero.""black")))    
+      ((= x 5)(begin
+                ((draw-string ventana) (make-posn 30 410)"¿Te digo un secreto? Los líderes de gimnasio POKEMON dan más dinero,""black")
+                ((draw-string ventana) (make-posn 30 430)"pero no le digas a nadie.""black")))
+      ((= x 6)((draw-string ventana) (make-posn 30 410)"Los § sirven para comprar POKEBALLS en la tienda, ¡consíguelos y gástalos!""black"))
+      (else((draw-string ventana) (make-posn 30 410)"¿Si te digo que hay un huevo de pascua en el juego, como te quedas? Wowowowowo.""black"))
+      )))
+
+
+(define (hablar)
+  (cond
+    ((vector-member mapa-actual (vector 5))(set (make-cuadro 310 160 130 155 -1)))
+    
+    ((vector-member mapa-actual (vector 6 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 ))
+     (set (make-cuadro 320 220 110 150 (+ 1 (random 6)))
+     (make-cuadro 180 180 150 150 (+ 1 (random 6)))))
+    
+    ((vector-member mapa-actual (vector 7 7.1))(set (make-cuadro 100 100 70 200 -3)))
+
+    ((vector-member mapa-actual (vector 8 8.1))(set (make-cuadro 220 120 70 120 -4)))
+
+    ((= mapa-actual 9) (set (make-cuadro 223 90 140 160 -2)))
+
+    ((vector-member mapa-actual (vector 10 10.1))(set (make-cuadro 223 90 140 160 -5)))
+   (else (set)) ))
+
+
+
+(define (dialogo? x y tecla ventana genero)
+  (begin
+    (define coincidencias (for/set ([i (hablar)]
+                                    #:when (and (and (> (+ x SPRITE_WIDTH) (cuadro-x i)) (< x (+ (cuadro-x i) (cuadro-ancho i))))
+                                                (and (> (+ y SPRITE_HEIGHT) (cuadro-y i)) (< (+ y (- SPRITE_HEIGHT SPRITE_FEETS)) (+ (cuadro-y i) (cuadro-alto i))))))
+                            i))
+(if (and (> (set-count coincidencias) 0) (equal? tecla (integer->char 13)))
+        
+(begin (dialogos (cuadro-dialogo (set-first coincidencias)) )
+(if (equal? (key-value (get-key-press ventana)) (integer->char 13))
+(movimiento x y 'up genero ventana))) ))) 
+
+
+
 ;(dict-ref mis-pokemones 2)
 
 (movimiento 90 190 'up 1 ventana)
+
