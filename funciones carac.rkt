@@ -13,12 +13,98 @@
 
 (define PROBABILIDAD_ATAQUE 10)
 
-(define mapa-actual 7)
+(define mapa-actual 2.1)
 
 (define-struct obs (x y width height jumpable))
 (define-struct grass (x y width height))
 (define-struct entrada (x y width height mapa x2 y2))
 (define-struct cuadro (x y ancho alto dialogo))
+(define-struct jugador (nombre genero pokeball))
+(define datos (make-jugador 0 0 0))
+
+
+(define (fondooak ventana)
+  (begin
+    ((draw-viewport ventana) (make-rgb 0.6 0.850922 0.917))
+    (((draw-pixmap-posn "profesor oak.png" 'unknown/mask ) ventana) (make-posn 175 0))
+    (((draw-pixmap-posn "nueve1.png" 'unknown/mask ) ventana) (make-posn 0 300))
+    ))
+
+(define (escribir1 x lista)
+  (begin
+    ((draw-solid-rectangle ventana) (make-posn x 395)2 10 "black")
+    (define a (key-value (get-key-press ventana)));tecla que oprim
+    (define b (if (or (equal? a 'release) (not (char? a)))
+                  "" (list->string (list (integer->char(char->integer a))))));vuelve la tecla en una cadena
+    (if (equal? b "")
+     (escribir1 x lista)  
+     (begin   
+     ((draw-solid-rectangle ventana) (make-posn x 395)5 10 "white");borra la barra para escribir
+     ((draw-string ventana) (make-posn x 405) (if (equal? #\backspace  a)"" b) "black");escribe la tecla
+     (if (equal? a (integer->char 13));si opimio enter, se detiene borra la barra de lo contrario la genera
+         ((draw-solid-rectangle ventana) (make-posn (- x 3) 395)10 10 "white")
+         ((draw-solid-rectangle ventana) (make-posn (+ x 10) 395)2 10 "black"))
+     (if (not (equal? a (integer->char 13)));si opimio enter se detiene y entrega el nombre de lo contrario continua
+         (if (equal? #\backspace  a)
+             (if (empty? lista)
+                 (begin
+                   ((draw-solid-rectangle ventana) (make-posn x 393)30 18  "white")
+                   (escribir1 x (list)) )   
+                 (begin
+                   ((draw-solid-rectangle ventana) (make-posn (- x 10) 393)30 18  "white")
+                   (escribir1 (- x 10) (reverse(cdr(reverse lista))))))
+             (escribir1 (+ x 10)(append lista (list a))))
+         (list->string lista))))))
+
+(define (genero x ventana)
+  (if (= x 1)(((draw-pixmap-posn  "triangulo.png"  'unknown/mask ) ventana) (make-posn 50 373)))
+  ((draw-string ventana) (make-posn 60 380) "Hombre             Mujer" "black")
+  (define a (key-value (get-key-press ventana)))
+  (cond
+    ((equal? 'left a)
+     (begin((draw-solid-rectangle ventana) (make-posn 150 370)8 13 "white")
+           (((draw-pixmap-posn  "triangulo.png"  'unknown/mask ) ventana) (make-posn 50 373))
+           (genero 1 ventana)))
+    ((equal? 'right a)
+     (begin((draw-solid-rectangle ventana) (make-posn 50 370)8 13 "white")
+           (((draw-pixmap-posn  "triangulo.png"  'unknown/mask ) ventana) (make-posn 150 373))
+           (genero 2 ventana)))
+    ((equal? (integer->char 13) a)
+     x)
+    (else (genero x ventana))))
+
+(define (dialogo-oak cont datosplayer ventana)
+  (if (equal? (key-value (get-key-press ventana)) (integer->char 13))
+      (begin ((draw-viewport ventana) "white")
+             (if (>= 3 cont)
+                 (begin
+                   (if (= cont 1)(begin((draw-viewport ventana) "black")(sleep 3)))
+                   (fondooak ventana)
+                   (cond
+                     ((= cont 1)
+                      (begin
+                        (sleep 1)((draw-string ventana) (make-posn 50 330) "¡Hola a todos! ¡Bienvenidos al mundo de POKÉMON! ¡Me llamo OAK!" "black")
+                        (sleep 1) ((draw-string ventana) (make-posn 50 355) "¡Pero la gente me llama el PROFESOR POKÉMON! ¡Este mundo " "black")
+                        (sleep 1) ((draw-string ventana) (make-posn 50 380) "está habitado por unas criaturas llamadas POKÉMON! Para algunos," "black")
+                        (sleep 1) ((draw-string ventana) (make-posn 50 405) " los POKÉMON son mascotas. Pero otros los usan para pelear." "black")
+                        (dialogo-oak (+ cont 1) datosplayer ventana)))
+                     ((= cont 2)
+                      (begin
+                        (sleep 1) ((draw-string ventana) (make-posn 50 330) "En cuanto a mí... Estudio a los POKÉMON como profesión." "black")
+                        (sleep 1) ((draw-string ventana) (make-posn 50 355) "dime, ¿cual es tu genero?:" "black")
+                        (sleep 1) (set-jugador-genero! datosplayer (genero 1 ventana))
+                        (sleep 1) ((draw-string ventana) (make-posn 50 405) "y tu nombre es?: " "black")
+                        (sleep 1) (set-jugador-nombre! datosplayer (escribir1 160 (list)))
+                        (dialogo-oak (+ cont 1) datosplayer ventana)))
+                     ((= cont 3)
+                      (begin
+                        (sleep 1)((draw-string ventana) (make-posn 50 350) "¡Tu propia leyenda POKÉMON está a punto de comenzar!" "black")
+                        (sleep 1)((draw-string ventana) (make-posn 50 370) "¡Te espera un mundo de sueños y aventuras con los POKÉMON!" "black")
+                        (sleep 1)((draw-string ventana) (make-posn 50 390) "¡Adelante!" "black")
+                        (dialogo-oak (+ cont 1) datosplayer ventana)))))(begin ((draw-viewport ventana) "black") (sleep 2))
+
+                                                                        )) (dialogo-oak cont datosplayer ventana)) )
+
 
 (define (escenario ventana)
 (begin
@@ -388,7 +474,8 @@
     (movimiento (posn-x pos) (posn-y pos) (key-value (get-key-press ventana))genero ventana)))
 
 (define (revisar-ataque x y ventana)
-  (if (and (sobre-hierba? x y) (recibir-ataque?)) ((draw-solid-rectangle ventana) (make-posn x y) SPRITE_WIDTH 20 "red") ) );b
+  (if (and (sobre-hierba? x y) (recibir-ataque?))
+      (iniciar-batalla ventana) ) );b
 
 (define (sobre-hierba? x y)
   (begin
@@ -420,6 +507,38 @@
           ))(make-posn x2 y2)))
 
 
+
+(define-struct pokemon (tipo nivel vida))
+
+
+(define mis-pokemones (hash))
+
+
+
+
+(define (iniciar-batalla ventana)
+  ((draw-pixmap ventana) "BatallaHierba.png"(make-posn 0 0) "blue")
+  (define aleatorio (random (dict-count pokemones)))
+  (((draw-pixmap-posn (dict-ref pokemones (dict-iterate-key pokemones aleatorio)) 'unknown/mask ) ventana) (make-posn 400 150))
+  ((draw-pixmap ventana) "BatallaHierba.png"(make-posn 0 0) "blue")
+  (turno-batalla ventana #t)
+  )
+
+(define (turno-batalla ventana continua)
+  (if continua
+      (begin
+        
+        (turno-batalla ventana (not (equal? (key-value (get-key-press ventana)) 'up))))))
+
+(define pokemones (hash
+                 "pikachu" "pokemones/pikachu.png"
+                 "bulbasur" "pokemones/bulbasur.png"
+                 "abra" "pokemones/abra.png"
+                 "clefairy" "pokemones/clefairy.png"
+                 "diglett" "pokemones/diglett.png"
+                 "charmander"  "pokemones/charmander.png"
+                 "sandshrew"  "pokemones/sandshrew.png"
+                 "nidoran" "pokemones/nidoran.png"))
 
 (define (dialogos x)
   (begin
@@ -480,6 +599,30 @@
 
 
 ;(dict-ref mis-pokemones 2)
+
+
+(define (player)
+  (begin
+    (make-jugador
+     1
+     1;hombre o mujer
+     0
+     )))
+
+
+
+
+((draw-viewport ventana) "black")
+(((draw-pixmap-posn "marca_UTP.png" 'unknown/mask ) ventana) (make-posn 175 175))(sleep 7)
+(play-sound "musica inicio.mp3" #t)
+((draw-pixmap ventana) "portada inicio.jpg" (make-posn 0 0) "blue")
+(dialogo-oak 1 datos ventana)
+((draw-pixmap ventana) "mapa 1 a.jpg" (make-posn 0 0) "blue")
+(movimiento 90 190 'up (jugador-genero datos) ventana)
+
+
+
+
 
 (movimiento 90 190 'up 1 ventana)
 
