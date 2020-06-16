@@ -13,7 +13,7 @@
 
 (define PROBABILIDAD_ATAQUE 10)
 
-(define mapa-actual 2.1)
+(define mapa-actual 5.1)
 
 (define-struct obs (x y width height jumpable))
 (define-struct grass (x y width height))
@@ -37,24 +37,24 @@
     (define b (if (or (equal? a 'release) (not (char? a)))
                   "" (list->string (list (integer->char(char->integer a))))));vuelve la tecla en una cadena
     (if (equal? b "")
-     (escribir1 x lista)  
-     (begin   
-     ((draw-solid-rectangle ventana) (make-posn x 395)5 10 "white");borra la barra para escribir
-     ((draw-string ventana) (make-posn x 405) (if (equal? #\backspace  a)"" b) "black");escribe la tecla
-     (if (equal? a (integer->char 13));si opimio enter, se detiene borra la barra de lo contrario la genera
-         ((draw-solid-rectangle ventana) (make-posn (- x 3) 395)10 10 "white")
-         ((draw-solid-rectangle ventana) (make-posn (+ x 10) 395)2 10 "black"))
-     (if (not (equal? a (integer->char 13)));si opimio enter se detiene y entrega el nombre de lo contrario continua
-         (if (equal? #\backspace  a)
-             (if (empty? lista)
-                 (begin
-                   ((draw-solid-rectangle ventana) (make-posn x 393)30 18  "white")
-                   (escribir1 x (list)) )   
-                 (begin
-                   ((draw-solid-rectangle ventana) (make-posn (- x 10) 393)30 18  "white")
-                   (escribir1 (- x 10) (reverse(cdr(reverse lista))))))
-             (escribir1 (+ x 10)(append lista (list a))))
-         (list->string lista))))))
+        (escribir1 x lista)  
+        (begin   
+          ((draw-solid-rectangle ventana) (make-posn x 395)5 10 "white");borra la barra para escribir
+          ((draw-string ventana) (make-posn x 405) (if (equal? #\backspace  a)"" b) "black");escribe la tecla
+          (if (equal? a (integer->char 13));si opimio enter, se detiene borra la barra de lo contrario la genera
+              ((draw-solid-rectangle ventana) (make-posn (- x 3) 395)10 10 "white")
+              ((draw-solid-rectangle ventana) (make-posn (+ x 10) 395)2 10 "black"))
+          (if (not (equal? a (integer->char 13)));si opimio enter se detiene y entrega el nombre de lo contrario continua
+              (if (equal? #\backspace  a)
+                  (if (empty? lista)
+                      (begin
+                        ((draw-solid-rectangle ventana) (make-posn x 393)30 18  "white")
+                        (escribir1 x (list)) )   
+                      (begin
+                        ((draw-solid-rectangle ventana) (make-posn (- x 10) 393)30 18  "white")
+                        (escribir1 (- x 10) (reverse(cdr(reverse lista))))))
+                  (escribir1 (+ x 10)(append lista (list a))))
+              (list->string lista))))))
 
 (define (genero x ventana)
   (if (= x 1)(((draw-pixmap-posn  "triangulo.png"  'unknown/mask ) ventana) (make-posn 50 373)))
@@ -107,9 +107,9 @@
 
 
 (define (escenario ventana)
-(begin
-  ((draw-pixmap ventana) (dict-ref mapas mapa-actual) (make-posn 0 0) "blue")
-))
+  (begin
+    ((draw-pixmap ventana) (dict-ref mapas mapa-actual) (make-posn 0 0) "blue")
+    ))
 
 (define mapas (hash 1 "mapa 1 a.jpg"
                     2 "mapa 2 a.jpg"
@@ -141,7 +141,7 @@
                     10 "gimnasio.png"
                     10.1 "gimnasio.png"
                    
-                   ))
+                    ))
 
 (define (entradas-mapa)
   (cond ((= mapa-actual 1) (set (make-entrada 0 0 600 10 2 -1 450)
@@ -208,201 +208,201 @@
         ((= mapa-actual 10) (set (make-entrada 0 495 600 5 3.3 310 240)))
         ((= mapa-actual 10.1) (set (make-entrada  0 495 600 5 4.2 227 310)))
 
-    (else (set))  ) )
+        (else (set))  ) )
 
 
 (define (obstaculos-mapa)
   (cond ((= mapa-actual 1) (set (make-obs  0 0 298 42 #f)
-                    (make-obs  352 0 300 42 #f)
-                    (make-obs  125 100 124 80 #f)
-                    (make-obs  352 100 124 80 #f)
-                    (make-obs  325 250 174 80 #f)
-                    (make-obs  125 288 124 10 #f)
-                    (make-obs  325 414 150 10 #f)
-                    (make-obs  174 424 100 80 #f)
-                    (make-obs  0 40 40 460 #f)
-                    (make-obs  560 40 40 460 #f)
-                    (make-obs  50 490 500 10 #f)))
+                                (make-obs  352 0 300 42 #f)
+                                (make-obs  125 100 124 80 #f)
+                                (make-obs  352 100 124 80 #f)
+                                (make-obs  325 250 174 80 #f)
+                                (make-obs  125 288 124 10 #f)
+                                (make-obs  325 414 150 10 #f)
+                                (make-obs  174 424 100 80 #f)
+                                (make-obs  0 40 40 460 #f)
+                                (make-obs  560 40 40 460 #f)
+                                (make-obs  50 490 500 10 #f)))
 
- ((= mapa-actual 2) (set (make-obs  0 405 298 200 #f)
-                    (make-obs  352 405 300 200 #f)
-                    (make-obs  0 115 298 50 #f)
-                    (make-obs  0 0 40 460 #f)
-                    (make-obs  560 0 40 460 #f)
-                    ;saltar de arriba a bajo:
-                    (make-obs  50 14 50 13 #t)
-                    (make-obs  125 14 100 13 #t)
-                    (make-obs  278 14 270 13 #t)
-                    (make-obs  452 165 100 13 #t)
-                    (make-obs  225 289 330 13 #t)
-                    (make-obs  50 289 100 13 #t)))
+        ((= mapa-actual 2) (set (make-obs  0 405 298 200 #f)
+                                (make-obs  352 405 300 200 #f)
+                                (make-obs  0 115 298 50 #f)
+                                (make-obs  0 0 40 460 #f)
+                                (make-obs  560 0 40 460 #f)
+                                ;saltar de arriba a bajo:
+                                (make-obs  50 14 50 13 #t)
+                                (make-obs  125 14 100 13 #t)
+                                (make-obs  278 14 270 13 #t)
+                                (make-obs  452 165 100 13 #t)
+                                (make-obs  225 289 330 13 #t)
+                                (make-obs  50 289 100 13 #t)))
 
-  ((= mapa-actual 2.1) (set (make-obs  0 0 240 42 #f)
-                    (make-obs  352 0 250 42 #f)
-                    (make-obs  205 85 42 205 #f)
-                    (make-obs  55 360 42 55 #f)
-                    (make-obs  252 360 145 55 #f)
-                    (make-obs  0 40 40 460 #f)
-                    (make-obs  560 40 40 460 #f)
-                    ;saltar de arriba a bajo:
-                    (make-obs  50 138 150 13 #t)
-                    (make-obs  250 138 150 13 #t)
-                    (make-obs  50 264 150 13 #t)
-                    (make-obs  100 389 150 13 #t)))
+        ((= mapa-actual 2.1) (set (make-obs  0 0 240 42 #f)
+                                  (make-obs  352 0 250 42 #f)
+                                  (make-obs  205 85 42 205 #f)
+                                  (make-obs  55 360 42 55 #f)
+                                  (make-obs  252 360 145 55 #f)
+                                  (make-obs  0 40 40 460 #f)
+                                  (make-obs  560 40 40 460 #f)
+                                  ;saltar de arriba a bajo:
+                                  (make-obs  50 138 150 13 #t)
+                                  (make-obs  250 138 150 13 #t)
+                                  (make-obs  50 264 150 13 #t)
+                                  (make-obs  100 389 150 13 #t)))
   
-  ((= mapa-actual 3) (set (make-obs  160 340 190 150 #f)
-                    (make-obs  350 388 200 115 #f)
-                    (make-obs  275 155 150 125 #f)
-                    (make-obs  305 95 42 60 #f)
-                    (make-obs  180 65 88 60 #f)
-                    (make-obs  590 80 10 100 #f)
-                    (make-obs  0 0 173 500 #f)
-                    ;saltar de arriba a bajo:
-                    (make-obs  170 265 105 13 #t)
-                    (make-obs  425 265 75 13 #t)
-                    (make-obs  575 265 28 13 #t)))
+        ((= mapa-actual 3) (set (make-obs  160 340 190 150 #f)
+                                (make-obs  350 388 200 115 #f)
+                                (make-obs  275 155 150 125 #f)
+                                (make-obs  305 95 42 60 #f)
+                                (make-obs  180 65 88 60 #f)
+                                (make-obs  590 80 10 100 #f)
+                                (make-obs  0 0 173 500 #f)
+                                ;saltar de arriba a bajo:
+                                (make-obs  170 265 105 13 #t)
+                                (make-obs  425 265 75 13 #t)
+                                (make-obs  575 265 28 13 #t)))
 
-  ((= mapa-actual 3.1) (set (make-obs  0 0 200 390 #f)
-                    (make-obs  200 0 275 115 #f)
-                    (make-obs  225 155 250 270 #f)
-                    (make-obs  475 180 25 225 #f)
-                    (make-obs  575 225 25 80 #f)
-                    (make-obs  575 405 25 80 #f)))
+        ((= mapa-actual 3.1) (set (make-obs  0 0 200 390 #f)
+                                  (make-obs  200 0 275 115 #f)
+                                  (make-obs  225 155 250 270 #f)
+                                  (make-obs  475 180 25 225 #f)
+                                  (make-obs  575 225 25 80 #f)
+                                  (make-obs  575 405 25 80 #f)))
 
-  ((= mapa-actual 3.2) (set (make-obs  50 390 410 110 #f)
-                    (make-obs  0 75 125 80 #f)
-                    (make-obs  455 0 150 500 #f)
-                    ;saltar de arriba a bajo:
-                    (make-obs  0 265 450 13 #t)))
+        ((= mapa-actual 3.2) (set (make-obs  50 390 410 110 #f)
+                                  (make-obs  0 75 125 80 #f)
+                                  (make-obs  455 0 150 500 #f)
+                                  ;saltar de arriba a bajo:
+                                  (make-obs  0 265 450 13 #t)))
 
-  ((= mapa-actual 3.3) (set (make-obs  250 410 100 60 #f)
-                    (make-obs  0 400 125 50 #f)
-                    (make-obs  0 225 125 50 #f)
-                    (make-obs  75 300 50 30 #f)
-                    (make-obs  225 155 148 100 #f)
-                    (make-obs  125 387 330 13 #f)
-                    (make-obs  455 0 145 500 #f)
-                    (make-obs  0 0 455 105 #f)
-                    (make-obs  0 455 5 45 #f)
-                    ;saltar de arriba a bajo:
-                    (make-obs  135 320 315 10 #t)
-                    ))
+        ((= mapa-actual 3.3) (set (make-obs  250 410 100 60 #f)
+                                  (make-obs  0 400 125 50 #f)
+                                  (make-obs  0 225 125 50 #f)
+                                  (make-obs  75 300 50 30 #f)
+                                  (make-obs  225 155 148 100 #f)
+                                  (make-obs  125 387 330 13 #f)
+                                  (make-obs  455 0 145 500 #f)
+                                  (make-obs  0 0 455 105 #f)
+                                  (make-obs  0 455 5 45 #f)
+                                  ;saltar de arriba a bajo:
+                                  (make-obs  135 320 315 10 #t)
+                                  ))
 
 
-  ((= mapa-actual 4) (set (make-obs  125 175 350 105 #f)
-                    (make-obs  225 320 100 60 #f)
-                    (make-obs  325 340 195 15 #f)
-                   (make-obs  525 180 50 25 #f)
-                     (make-obs  200 445 225 70 #f)
-                    (make-obs  0 435 190 20 #f)
-                    (make-obs  170 435 20 100 #f)
-                    (make-obs  0 0 600 125 #f)
-                    (make-obs  0 124 48 315 #f)))
+        ((= mapa-actual 4) (set (make-obs  125 175 350 105 #f)
+                                (make-obs  225 320 100 60 #f)
+                                (make-obs  325 340 195 15 #f)
+                                (make-obs  525 180 50 25 #f)
+                                (make-obs  200 445 225 70 #f)
+                                (make-obs  0 435 190 20 #f)
+                                (make-obs  170 435 20 100 #f)
+                                (make-obs  0 0 600 125 #f)
+                                (make-obs  0 124 48 315 #f)))
 
- ((= mapa-actual 4.1) (set (make-obs  175 175 325 105  #f)
-                    (make-obs  225 326 225 105 #f)
-                    (make-obs  50 328 150 80 #f)
-                    (make-obs  45 382 12 120 #f)
-                    (make-obs  150 470 50 5 #f)
-                    (make-obs  50 192 75 5 #f)
-                    (make-obs  0 266 150 10 #f)
-                    (make-obs  200 495 350 10 #f)
-                    (make-obs  562 0 58 500 #f)
-                    (make-obs  0 0 562 125 #f)))
+        ((= mapa-actual 4.1) (set (make-obs  175 175 325 105  #f)
+                                  (make-obs  225 326 225 105 #f)
+                                  (make-obs  50 328 150 80 #f)
+                                  (make-obs  45 382 12 120 #f)
+                                  (make-obs  150 470 50 5 #f)
+                                  (make-obs  50 192 75 5 #f)
+                                  (make-obs  0 266 150 10 #f)
+                                  (make-obs  200 495 350 10 #f)
+                                  (make-obs  562 0 58 500 #f)
+                                  (make-obs  0 0 562 125 #f)))
 
-  ((= mapa-actual 4.2) (set (make-obs  175 0 250 75 #f)
-                    (make-obs  425 60 165 15 #f)
-                    (make-obs  105 155 495 125 #f)
-                    (make-obs  120 290 30 30 #f)
-                    (make-obs  0 445 300 55 #f)
-                    (make-obs  305 385 165 120 #f)
-                    (make-obs  0 60 50 410 #f)
-                    ;saltar de arriba a bajo:
-                    (make-obs  100 388 125 13 #t)
-                    (make-obs  550 388 50 13 #t)
-                    (make-obs  100 260 13 142 #t)))
+        ((= mapa-actual 4.2) (set (make-obs  175 0 250 75 #f)
+                                  (make-obs  425 60 165 15 #f)
+                                  (make-obs  105 155 495 125 #f)
+                                  (make-obs  120 290 30 30 #f)
+                                  (make-obs  0 445 300 55 #f)
+                                  (make-obs  305 385 165 120 #f)
+                                  (make-obs  0 60 50 410 #f)
+                                  ;saltar de arriba a bajo:
+                                  (make-obs  100 388 125 13 #t)
+                                  (make-obs  550 388 50 13 #t)
+                                  (make-obs  100 260 13 142 #t)))
 
- ((= mapa-actual 4.3) (set (make-obs  130 405 465 95 #f)
-                    (make-obs  530 120 80 300 #f)
-                    (make-obs  0 155 120 125 #f)
-                    (make-obs  40 0 10 80 #f)
-                    (make-obs  175 85 300 15 #f)
-                    (make-obs  275 100 180 55 #f)
-                    (make-obs  175 95 10 155 #f)
-                    (make-obs  465 95 10 155 #f)
-                    (make-obs  180 220 280 60 #f)
-                    (make-obs  175 335 125 10 #f)
-                    (make-obs  375 335 100 10 #f)
-                    (make-obs  200 0 400 10 #f)
-                    ;saltar de arriba a bajo:
-                    (make-obs  0 388 125 13 #t)
-                    (make-obs  112 250 13 150 #t)))
+        ((= mapa-actual 4.3) (set (make-obs  130 405 465 95 #f)
+                                  (make-obs  530 120 80 300 #f)
+                                  (make-obs  0 155 120 125 #f)
+                                  (make-obs  40 0 10 80 #f)
+                                  (make-obs  175 85 300 15 #f)
+                                  (make-obs  275 100 180 55 #f)
+                                  (make-obs  175 95 10 155 #f)
+                                  (make-obs  465 95 10 155 #f)
+                                  (make-obs  180 220 280 60 #f)
+                                  (make-obs  175 335 125 10 #f)
+                                  (make-obs  375 335 100 10 #f)
+                                  (make-obs  200 0 400 10 #f)
+                                  ;saltar de arriba a bajo:
+                                  (make-obs  0 388 125 13 #t)
+                                  (make-obs  112 250 13 150 #t)))
 
-((= mapa-actual 5) (set (make-obs  0 0 600 100 #f)
-                    (make-obs  0 100 190 40 #f)
-                    (make-obs  245 100 55 40 #f)
-                    (make-obs  505 180 100 10 #f)
-                    (make-obs  250 220 100 100 #f)
-                    (make-obs  360 220 30 60 #f);mom
-                    (make-obs  0 350 45 85 #f)
-                    (make-obs  555 350 45 85 #f)))
-((= mapa-actual 5.1) (set (make-obs  0 0 600 100 #f)
-                    (make-obs  0 100 275 20 #f)
-                    (make-obs  270 215 60 145 #f)
-                    (make-obs  375 100 25 100 #f)
-                    (make-obs  375 185 115 30 #f)))
-((vector-member mapa-actual (vector 6 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8))
- (set (make-obs  0 0 600 140 #f);casa2
-                    (make-obs  20 140 280 40 #f)
-                    (make-obs  240 270 110 110 #f)
-                    (make-obs  0 270 15 250 #f)
-                    (make-obs  565 215 35 300 #f)
-                    (make-obs  425 140 45 120 #f)
-                    (make-obs  485 140 50 80 #f)
-                    (make-obs  350 260 30 40 #f);niñ02
-                    (make-obs  250 220 30 40 #f)));niñ01
+        ((= mapa-actual 5) (set (make-obs  0 0 600 100 #f)
+                                (make-obs  0 100 190 40 #f)
+                                (make-obs  245 100 55 40 #f)
+                                (make-obs  505 180 100 10 #f)
+                                (make-obs  250 220 100 100 #f)
+                                (make-obs  360 220 30 60 #f);mom
+                                (make-obs  0 350 45 85 #f)
+                                (make-obs  555 350 45 85 #f)))
+        ((= mapa-actual 5.1) (set (make-obs  0 0 600 100 #f)
+                                  (make-obs  0 100 275 20 #f)
+                                  (make-obs  270 215 60 145 #f)
+                                  (make-obs  375 100 25 100 #f)
+                                  (make-obs  375 185 115 30 #f)))
+        ((vector-member mapa-actual (vector 6 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8))
+         (set (make-obs  0 0 600 140 #f);casa2
+              (make-obs  20 140 280 40 #f)
+              (make-obs  240 270 110 110 #f)
+              (make-obs  0 270 15 250 #f)
+              (make-obs  565 215 35 300 #f)
+              (make-obs  425 140 45 120 #f)
+              (make-obs  485 140 50 80 #f)
+              (make-obs  350 260 30 40 #f);niñ02
+              (make-obs  250 220 30 40 #f)));niñ01
 
-((vector-member mapa-actual (vector 7 7.1)) (set (make-obs  0 0 535 140 #f)
-                    (make-obs  85 140 400 65 #f)
-                    (make-obs  480 340 100 100 #f)));enfermeria
+        ((vector-member mapa-actual (vector 7 7.1)) (set (make-obs  0 0 535 140 #f)
+                                                         (make-obs  85 140 400 65 #f)
+                                                         (make-obs  480 340 100 100 #f)));enfermeria
 
-((vector-member mapa-actual (vector 8 8.1)) (set (make-obs  0 0 600 110 #f)
-                    (make-obs  0 0 140 320 #f)
-                    (make-obs  325 255 110 200 #f)
-                    (make-obs  545 0 55 450 #f)));tienda
-((= mapa-actual 9) (set (make-obs 0 0 600 80 #f)
-                    (make-obs  0 130 140 106 #f)
-                    (make-obs  0 290 235 80 #f)
-                    (make-obs  365 290 235 80 #f)
-                    (make-obs  365 160 145 50 #f)
-                    (make-obs  273 160 40 45 #f)
-                    (make-obs  0 440 40 60 #f)
-                    (make-obs  560 440 40 60 #f)))
+        ((vector-member mapa-actual (vector 8 8.1)) (set (make-obs  0 0 600 110 #f)
+                                                         (make-obs  0 0 140 320 #f)
+                                                         (make-obs  325 255 110 200 #f)
+                                                         (make-obs  545 0 55 450 #f)));tienda
+        ((= mapa-actual 9) (set (make-obs 0 0 600 80 #f)
+                                (make-obs  0 130 140 106 #f)
+                                (make-obs  0 290 235 80 #f)
+                                (make-obs  365 290 235 80 #f)
+                                (make-obs  365 160 145 50 #f)
+                                (make-obs  273 160 40 45 #f)
+                                (make-obs  0 440 40 60 #f)
+                                (make-obs  560 440 40 60 #f)))
 
-((vector-member mapa-actual (vector 10 10.1)) (set (make-obs 0 0 600 80 #f)
-                    (make-obs  0 0 600 175 #f)
-                    (make-obs  0 175 105 500 #f)
-                    (make-obs  490 175 105 500 #f)
-                    (make-obs  105 175 128 50 #f)
-                    (make-obs  233 325 128 50 #f)
-                    (make-obs  105 275 128 100 #f)
-                    (make-obs  362 175 130 50 #f)
-                    (make-obs  362 425 128 100 #f)
-                    (make-obs  148 425 170 100 #f)
-                    (make-obs  278 162 40 55 #f)))))
+        ((vector-member mapa-actual (vector 10 10.1)) (set (make-obs 0 0 600 80 #f)
+                                                           (make-obs  0 0 600 175 #f)
+                                                           (make-obs  0 175 105 500 #f)
+                                                           (make-obs  490 175 105 500 #f)
+                                                           (make-obs  105 175 128 50 #f)
+                                                           (make-obs  233 325 128 50 #f)
+                                                           (make-obs  105 275 128 100 #f)
+                                                           (make-obs  362 175 130 50 #f)
+                                                           (make-obs  362 425 128 100 #f)
+                                                           (make-obs  148 425 170 100 #f)
+                                                           (make-obs  278 162 40 55 #f)))))
 
 
 (define (hierbas-mapa)
   (cond ((= mapa-actual 2) (set
-                    (make-grass  300 102 150 125)
-                    (make-grass  100 302 175 50)
-                    (make-grass  50 352 175 50)
-                    (make-grass  300 378 50 120)
-                    (make-grass  425 302 125 50)
-                    (make-grass  375 352 125 50)))
+                            (make-grass  300 102 150 125)
+                            (make-grass  100 302 175 50)
+                            (make-grass  50 352 175 50)
+                            (make-grass  300 378 50 120)
+                            (make-grass  425 302 125 50)
+                            (make-grass  375 352 125 50)))
         ((= mapa-actual 2.1) (set
-                    (make-grass  250 152 300 125)
-                    (make-grass  400 325 150 125)))
+                              (make-grass  250 152 300 125)
+                              (make-grass  400 325 150 125)))
         (else (set))))
 
 (define ventana (open-viewport "pokemon" 600 500))
@@ -434,13 +434,13 @@
 
 ;movimiento
 (define (movimiento x y tecla genero ventana)
-(begin (dialogo? x y tecla ventana genero)
-   (cond
-    ((equal? tecla 'up)   (movimiento-arriba x y genero ventana))
-    ((equal? tecla 'down) (movimiento-abajo x y genero ventana))
-    ((equal? tecla 'left) (movimiento-izquierda x y genero ventana))
-    ((equal? tecla 'right) (movimiento-derecha x y genero ventana))
-    (else (movimiento x y (key-value (get-key-press ventana))genero ventana)))));si alguna tecla hace alguna accion usar este ringlon
+  (begin (dialogo? x y tecla ventana genero)
+         (cond
+           ((equal? tecla 'up)   (movimiento-arriba x y genero ventana))
+           ((equal? tecla 'down) (movimiento-abajo x y genero ventana))
+           ((equal? tecla 'left) (movimiento-izquierda x y genero ventana))
+           ((equal? tecla 'right) (movimiento-derecha x y genero ventana))
+           (else (movimiento x y (key-value (get-key-press ventana))genero ventana)))));si alguna tecla hace alguna accion usar este ringlon
 
 (define (movimiento-arriba x y genero ventana)
   (if (puedo-mover? x (- y 10) 'arriba) (moverse x (- y 10) 'arriba genero ventana) (moverse x y 'arriba genero ventana)))
@@ -454,28 +454,26 @@
 
 (define (puedo-mover? x y tecla)
   (and (and (and (>= x -20) (< (+ x SPRITE_WIDTH) 620)) (and (>= (+ y (- SPRITE_HEIGHT SPRITE_FEETS)) 0) (< y 500))) (not (hay-obstaculo? x y tecla)))
- )
+  )
 
 (define (hay-obstaculo? x y tecla)
   (begin
     (define coincidencias (for/set ([i (obstaculos-mapa)]
-              #:when (and (not (and (equal? tecla 'abajo) (obs-jumpable i))) (and (and (>= (+ x SPRITE_WIDTH) (obs-x i)) (<= x (+ (obs-x i) (obs-width i))))
-         (and (>= (+ y SPRITE_HEIGHT) (obs-y i)) (<= (+ y (- SPRITE_HEIGHT SPRITE_FEETS)) (+ (obs-y i) (obs-height i)))))))
-      i))
+                                    #:when (and (not (and (equal? tecla 'abajo) (obs-jumpable i))) (and (and (>= (+ x SPRITE_WIDTH) (obs-x i)) (<= x (+ (obs-x i) (obs-width i))))
+                                                                                                        (and (>= (+ y SPRITE_HEIGHT) (obs-y i)) (<= (+ y (- SPRITE_HEIGHT SPRITE_FEETS)) (+ (obs-y i) (obs-height i)))))))
+                            i))
     (> (set-count coincidencias) 0) ))
 
 (define (moverse x y tecla genero ventana)
   (begin
     (muñeco x y tecla genero ventana)
-    ((draw-solid-rectangle ventana) (make-posn 500 465) 60 20 "white");borrar
-    ((draw-string ventana) (make-posn 500 475) (string-append "x:" (number->string x) " y:" (number->string y)) "black");borrar
     (revisar-ataque x y ventana)
     (define pos (revisar-cambiomapa x y ventana))
     (movimiento (posn-x pos) (posn-y pos) (key-value (get-key-press ventana))genero ventana)))
 
 (define (revisar-ataque x y ventana)
   (if (and (sobre-hierba? x y) (recibir-ataque?))
-      (iniciar-batalla ventana) ) );b
+      (iniciar-batalla ventana (random 11)) ) )
 
 (define (sobre-hierba? x y)
   (begin
@@ -492,12 +490,12 @@
   (begin
     (define x2 x)
     (define y2 y)
-(define coincidencias (for/set ([i (entradas-mapa)]
-                                  #:when (and (and (> (+ x SPRITE_WIDTH) (entrada-x i)) (< x (+ (entrada-x i) (entrada-width i))))
-                                              (and (> (+ y SPRITE_HEIGHT) (entrada-y i)) (< (+ y (- SPRITE_HEIGHT SPRITE_FEETS)) (+ (entrada-y i) (entrada-height i))))))
-                          i))
+    (define coincidencias (for/set ([i (entradas-mapa)]
+                                    #:when (and (and (> (+ x SPRITE_WIDTH) (entrada-x i)) (< x (+ (entrada-x i) (entrada-width i))))
+                                                (and (> (+ y SPRITE_HEIGHT) (entrada-y i)) (< (+ y (- SPRITE_HEIGHT SPRITE_FEETS)) (+ (entrada-y i) (entrada-height i))))))
+                            i))
 
-(if (> (set-count coincidencias) 0)
+    (if (> (set-count coincidencias) 0)
         (begin
           (set! mapa-actual (entrada-mapa (set-first coincidencias)))        
           (if (not (= (entrada-x2 (set-first coincidencias)) -1))
@@ -510,35 +508,74 @@
 
 (define-struct pokemon (tipo nivel vida))
 
-
 (define mis-pokemones (hash))
 
+(set! mis-pokemones (dict-set mis-pokemones 1 (make-pokemon "pikachu" 5 115)))
 
-
-
-(define (iniciar-batalla ventana)
+(define (iniciar-batalla ventana nivel)
+  ((draw-viewport ventana) "black") (sleep 0.5)
   ((draw-pixmap ventana) "BatallaHierba.png"(make-posn 0 0) "blue")
-  (define aleatorio (random (dict-count pokemones)))
-  (((draw-pixmap-posn (dict-ref pokemones (dict-iterate-key pokemones aleatorio)) 'unknown/mask ) ventana) (make-posn 400 150))
-  ((draw-pixmap ventana) "BatallaHierba.png"(make-posn 0 0) "blue")
-  (turno-batalla ventana #t)
+  (define aleatorio (dict-ref pokemones (random 8)))
+  (((draw-pixmap-posn (imagpok aleatorio) 'unknown/mask) ventana) (make-posn 400 150))
+  (((draw-pixmap-posn (imagpokprop (pokemon-tipo (dict-ref mis-pokemones 1))) 'unknown/mask) ventana) (make-posn 100 270))
+  ((draw-string ventana) (make-posn 50 80) aleatorio)
+  ((draw-string ventana) (make-posn 230 80) (number->string nivel))
+  ((draw-string ventana) (make-posn 400 290) (pokemon-tipo (dict-ref mis-pokemones 1)))
+  ((draw-string ventana) (make-posn 570 290) (number->string (pokemon-nivel (dict-ref mis-pokemones 1))))
+  (batalla ventana (+ (random 21) 10) (+ (random 21) 10))
   )
 
-(define (turno-batalla ventana continua)
-  (if continua
-      (begin
-        
-        (turno-batalla ventana (not (equal? (key-value (get-key-press ventana)) 'up))))))
+(define (batalla ventana a b)
+  (if (< a 115)
+      (if (< b 115)
+          (begin
+            (if (equal? (key-value (get-key-press ventana)) (integer->char 13))
+                (begin 
+                  ((draw-solid-rectangle ventana) (make-posn 120 98) a 9 "gray")
+                  (sleep 1)
+                  ((draw-solid-rectangle ventana) (make-posn 470 307) b 9 "gray")
+                  (set-pokemon-vida! (dict-ref mis-pokemones 1) (- (pokemon-vida (dict-ref mis-pokemones 1)) b))
+                  (batalla ventana (+ a (+ (random 21) 10)) (+ b (+ (random 21) 10)))
+                  ) (batalla ventana a b)))
+          ((draw-solid-rectangle ventana) (make-posn 470 307) 115 9 "gray"))
+      ((draw-solid-rectangle ventana) (make-posn 120 98) 115 9 "gray")))
 
 (define pokemones (hash
-                 "pikachu" "pokemones/pikachu.png"
-                 "bulbasur" "pokemones/bulbasur.png"
-                 "abra" "pokemones/abra.png"
-                 "clefairy" "pokemones/clefairy.png"
-                 "diglett" "pokemones/diglett.png"
-                 "charmander"  "pokemones/charmander.png"
-                 "sandshrew"  "pokemones/sandshrew.png"
-                 "nidoran" "pokemones/nidoran.png"))
+                   0 "pikachu"
+                   1 "bulbasur" 
+                   2 "abra" 
+                   3 "clefairy" 
+                   4 "diglett"
+                   5 "charmander" 
+                   6 "sandshrew" 
+                   7 "nidoran"
+                   8  "squirtle"))
+
+
+(define (imagpok x)
+  (cond          ((equal? "pikachu" x) "pokemones/pikachu.png")
+                 ((equal? "bulbasur" x) "pokemones/bulbasur.png")
+                 ((equal? "abra" x) "pokemones/abra.png")
+                 ((equal? "clefairy" x) "pokemones/clefairy.png")
+                 ((equal? "diglett" x) "pokemones/diglett.png")
+                 ((equal? "charmander" x) "pokemones/charmander.png")
+                 ((equal? "sandshrew" x)  "pokemones/sandshrew.png")
+                 ((equal? "nidoran" x) "pokemones/nidoran.png")
+                 ((equal? "squirtle" x) "pokemones/squirtle.png")))
+
+(define (imagpokprop x)
+  (cond          ((equal? "pikachu" x) "pokemonprop/16.png")
+                 ((equal? "bulbasur" x) "pokemonprop/11.png")
+                 ((equal? "abra" x) "pokemonprop/10.png")
+                 ((equal? "clefairy" x) "pokemonprop/13.png")
+                 ((equal? "diglett" x) "pokemonprop/14.png")
+                 ((equal? "charmander" x) "pokemonprop/12.png")
+                 ((equal? "sandshrew" x)  "pokemonprop/17.png")
+                 ((equal? "nidoran" x) "pokemonprop/15.png")
+                 ((equal? "squirtle" x) "pokemones/18.png")))
+
+
+
 
 (define (dialogos x)
   (begin
@@ -575,12 +612,12 @@
     ((vector-member mapa-actual (vector 5))(set (make-cuadro 310 160 130 155 -1)))
     ((vector-member mapa-actual (vector 6 6.1 6.2 6.3 6.4 6.5 6.6 6.7 6.8 ))
      (set (make-cuadro 320 220 110 150 (+ 1 (random 6)))
-     (make-cuadro 180 180 150 150 (+ 1 (random 6)))))
+          (make-cuadro 180 180 150 150 (+ 1 (random 6)))))
     ((vector-member mapa-actual (vector 7 7.1))(set (make-cuadro 85 200 400 40 -3)))
     ((vector-member mapa-actual (vector 8 8.1))(set (make-cuadro 100 100 70 200 -4)))
     ((= mapa-actual 9) (set (make-cuadro 223 90 140 160 -2)))
     ((vector-member mapa-actual (vector 10 10.1))(set (make-cuadro 223 90 140 160 -5)))
-   (else (set)) ))
+    (else (set)) ))
 
 
 
@@ -590,11 +627,11 @@
                                     #:when (and (and (> (+ x SPRITE_WIDTH) (cuadro-x i)) (< x (+ (cuadro-x i) (cuadro-ancho i))))
                                                 (and (> (+ y SPRITE_HEIGHT) (cuadro-y i)) (< (+ y (- SPRITE_HEIGHT SPRITE_FEETS)) (+ (cuadro-y i) (cuadro-alto i))))))
                             i))
-(if (and (> (set-count coincidencias) 0) (equal? tecla (integer->char 13)))
+    (if (and (> (set-count coincidencias) 0) (equal? tecla (integer->char 13)))
         
-(begin (dialogos (cuadro-dialogo (set-first coincidencias)) )
-(if (equal? (key-value (get-key-press ventana)) (integer->char 13))
-(movimiento x y 'up genero ventana))) ))) 
+        (begin (dialogos (cuadro-dialogo (set-first coincidencias)) )
+               (if (equal? (key-value (get-key-press ventana)) (integer->char 13))
+                   (movimiento x y 'up genero ventana))) ))) 
 
 
 
@@ -610,19 +647,14 @@
      )))
 
 
-
-
 ((draw-viewport ventana) "black")
-(((draw-pixmap-posn "marca_UTP.png" 'unknown/mask ) ventana) (make-posn 175 175))(sleep 7)
+(((draw-pixmap-posn "marca_UTP.png" 'unknown/mask ) ventana) (make-posn 175 175))(sleep 4)
 (play-sound "musica inicio.mp3" #t)
 ((draw-pixmap ventana) "portada inicio.jpg" (make-posn 0 0) "blue")
 (dialogo-oak 1 datos ventana)
-((draw-pixmap ventana) "mapa 1 a.jpg" (make-posn 0 0) "blue")
 (movimiento 90 190 'up (jugador-genero datos) ventana)
 
 
 
 
-
-(movimiento 90 190 'up 1 ventana)
 
